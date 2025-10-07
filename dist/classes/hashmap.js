@@ -6,8 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const crypto_1 = __importDefault(require("crypto"));
 class HashMap {
     bucket = [[], [], [], [], [], [], [], [], [], []];
-    constructor(bucket) {
-        this.bucket = bucket;
+    constructor() {
     }
     getHexFromKey(key, strategie) {
         return crypto_1.default.createHash(strategie).update(key).digest("hex");
@@ -18,7 +17,7 @@ class HashMap {
     getIndexFromHash(sliceHash, bucketSize) {
         return parseInt(sliceHash) % bucketSize;
     }
-    getBucketLenght(bucket) {
+    getBucketLenght() {
         return this.bucket.length;
     }
     addToBucket() { }

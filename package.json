@@ -4,11 +4,14 @@
   },
   "devDependencies": {
     "@types/node": "^24.7.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "dev": "tsc && node dist/main.js"
+    "dev": "nodemon --exec ts-node main.ts",
+    "dev:watch": "nodemon --watch . --ext ts --exec \"tsc && node dist/main.js\""
   }
 }
