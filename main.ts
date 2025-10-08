@@ -1,49 +1,49 @@
 import fastify from "fastify";
 import HashMap from "./classes/hashmap";
+import { Hasher } from "./classes/hasher";
+import { IndexCalculator } from "./classes/indexCalculator";
+import { BucketManager } from "./classes/bucketManager";
+import { ResizeManager } from "./classes/resizeManager";
 
 const server = fastify({ logger: true });
 
-// Création d'une instance de HashMap qui sera disponible pour toute l'app
-const hashMapInstance = new HashMap();
+const hasher = new Hasher();
+const indexCalculator = new IndexCalculator(hasher);
+const bucketManager = new BucketManager();
+const resizeManager = new ResizeManager();
+const hashMapInstance = new HashMap(
+  indexCalculator,
+  bucketManager,
+  resizeManager
+);
 
-server.get("/ping", async (request, reply) => {
-  return "pong\n";
+server.get("/hashMap/length", async (request, reply) => {
+  const length = hashMapInstance.gethashMapLenght();
+  return { hashMapLength: length };
 });
 
-server.get("/bucket/length", async (request, reply) => {
-  const length = hashMapInstance.getBucketLenght();
-  return { bucketLength: length };
+server.get("/hashMap", async (request, reply) => {
+  const hashMap = hashMapInstance.gethashMap();
+  return { hashMap: hashMap };
 });
 
-server.get("/bucket", async (request, reply) => {
-  const bucket = hashMapInstance.getBucket();
-  return { bucket: bucket };
-});
-
-// curl -d '{"cart:user_128": {"item_id": 123}}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
-// curl -d '{"cart:user_128": [{ "id_produit": " chaussure_42", "quantite": 1, "prix": 89.99 }, { "id_produit": " chaussette_10", "quantite": 2, "prix": 5.00 }]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
 server.post("/key", async (request, reply) => {
   for (const [key, value] of Object.entries(
     request.body as Record<string, any>
   )) {
-    const index = hashMapInstance.addToBucket(key, {
-      [key]: JSON.stringify(value),
-    });
-    // console.log(`Added key "${key}" to bucket index ${index}`);
+    hashMapInstance.addToHashMap(key, value);
   }
-  console.log("Current bucket state:", hashMapInstance.getBucket());
-
-  // return {
-  //   message: "Keys added successfully",
-  //   bucketState: hashMapInstance.getBucket(),
-  // };
+  return {
+    message: "Keys added successfully",
+    hashMapState: hashMapInstance.gethashMap(),
+  };
 });
 
 server.get<{
   Params: { key: string };
 }>("/keys/:key", async (request, reply) => {
   const { key } = request.params;
-  const keyFind = hashMapInstance.getValueFormKey(key);
+  const keyFind = hashMapInstance.getKey(key);
   return {
     keyFind,
   };
@@ -51,17 +51,22 @@ server.get<{
 
 server.get("/keys", async (request, reply) => {
   const dump = hashMapInstance.getAllData();
-  return { dump };
+  return { count: dump.length, dump };
 });
 
-server.put<{Params: {key: string}}>("/keys/:key",  async (request, reply) => {
-  const { key } = request.params;
-  let updateItem;
-  for(let [itemKey, value] of Object.entries(request.body as Record<string, any>)) {
-    updateItem = hashMapInstance.addToBucket(key, {[key]: JSON.stringify(value)})
+server.put<{ Params: { key: string } }>(
+  "/keys/:key",
+  async (request, reply) => {
+    const { key } = request.params;
+    let updateItem;
+    for (let [itemKey, value] of Object.entries(
+      request.body as Record<string, any>
+    )) {
+      updateItem = hashMapInstance.addToHashMap(key, value);
+    }
+    return updateItem;
   }
-  return updateItem;
-});
+);
 
 server.listen({ port: 8080 }, (err, address) => {
   if (err) {

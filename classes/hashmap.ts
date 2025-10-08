@@ -1,96 +1,97 @@
-import crypto from "crypto";
+import { BucketManager } from "./bucketManager";
+import HashMapIterator from "./hashmapIterator";
+import { IndexCalculator } from "./indexCalculator";
+import { ResizeManager } from "./resizeManager";
 
 class HashMap {
-  private bucket: any[] = [[], [], [], [], [], [], [], [], [], []];
+  private hashMap: any[] = [[], [], [], [], [], [], [], [], [], []];
+  public elementCount: number = 0;
+  public bucketCount: number = 10;
+  private _index: IndexCalculator;
+  private _bucketManager: BucketManager;
+  private _resizeManager: ResizeManager;
 
-  constructor() {}
-
-  getBucket() {
-    return this.bucket;
+  constructor(
+    _index: IndexCalculator,
+    _bucketManager: BucketManager,
+    _resizeManager: ResizeManager
+  ) {
+    this._index = _index;
+    this._bucketManager = _bucketManager;
+    this._resizeManager = _resizeManager;
   }
 
-  getHexFromKey(key: string, strategie: string): string {
-    return crypto.createHash(strategie).update(key).digest("hex");
+  gethashMap() {
+    return this.hashMap;
   }
 
-  getSliceHash(hash: string): string {
-    return hash.slice(0, 8);
+  gethashMapLenght() {
+    return this.bucketCount;
   }
 
-  getIndexFromHash(sliceHash: string, bucketSize: number): number {
-    return parseInt(sliceHash, 16) % bucketSize;
-  }
-
-  getBucketLenght() {
-    return this.bucket.length;
-  }
-
-  addToBucket(key: string, content: any) {
-    const hash = this.getHexFromKey(key, "sha256");
-    const slicehash = this.getSliceHash(hash);
-    const index = this.getIndexFromHash(slicehash, this.getBucketLenght());
-    try {
-      if (Object.keys(this.bucket[index]).length) {
-        this.bucket[index].forEach((item: any) => {
-          for (let existingKey of Object.keys(item)) {
-            if (existingKey === key) {
-              delete item.key;
-              this.bucket[index] = content;
-              return { success: true, data: JSON.parse(content) };
-            }
-          }
-        });
-      } else {
-        this.bucket[index].push(content);
-        return { success: true, data: JSON.parse(content) };
-      }
-    } catch (e) {
-      return { error: `Une erreur est survenue: ${e}` };
+  addToHashMap(key: string, content: any) {
+    const index = this._index.getIndex(key, this.bucketCount);
+    const success = this._bucketManager.add(this.hashMap, index, key, content);
+    if (success) {
+      this.elementCount++;
+      this.checkAndResize();
     }
   }
 
-  removeToBucket(key: string) {
-    const index = this.getIndex(key);
-    try {
-      this.bucket[index].forEach((item: any) => {
-        for (let existingKey of Object.keys(item)) {
-          if (existingKey === key) {
-            delete item.key;
-            return { success: item.key };
-          }
-        }
-      });
-    } catch (e) {
-      return { error: `Une erreur est survenue: ${e}` };
+  removeToHashMap(key: string): boolean {
+    const index = this._index.getIndex(key, this.bucketCount);
+    const removed = this._bucketManager.remove(index, key, this.hashMap);
+    if (removed) {
+      this.elementCount--;
     }
+    return removed;
   }
 
-  getIndex(key: string): number {
-    const hash = this.getHexFromKey(key, "sha256");
-    const slicehash = this.getSliceHash(hash);
-    return this.getIndexFromHash(slicehash, this.getBucketLenght());
-  }
-
-  getValueFormKey(key: string) {
-    const index = this.getIndex(key);
-    for (let item of this.bucket[index]) {
-      if (item.length) {
-        return item;
-      } else {
-        return { result: "item not found" };
-      }
-    }
+  getKey(key: string) {
+    const index = this._index.getIndex(key, this.bucketCount);
+    return this._bucketManager.get(index, key, this.hashMap);
   }
 
   getAllData() {
-    const result = [];
-    for (let index = 0; index < this.bucket.length; index++) {
-      const element = this.bucket[index];
-      for (let [item, value] of Object.entries(element)) {
-        result.push({ [item]: JSON.parse(value as string) });
+    const allData: any[] = [];
+    const iterator = new HashMapIterator(this.hashMap);
+
+    while (iterator.hasNext()) {
+      const element = iterator.next();
+      if (element !== null) {
+        allData.push(element);
       }
     }
-    return result;
+    this.elementCount = allData.length;
+    return allData;
+  }
+
+  getCountElment() {
+    return this.elementCount;
+  }
+
+  checkAndResize() {
+    if (this._resizeManager.shouldResize(this.elementCount, this.bucketCount)) {
+      console.log(
+        this._resizeManager.shouldResize(this.elementCount, this.bucketCount)
+      );
+      const newBuckets = this._resizeManager.resize(this.bucketCount);
+      this.reHashing(this.hashMap, newBuckets);
+      this.bucketCount *= 2;
+    }
+  }
+
+  reHashing(currenthashMap: any[], newhashMap: any[]): any[] | void {
+    const iterator = new HashMapIterator(currenthashMap);
+    while (iterator.hasNext()) {
+      const element = iterator.next();
+      if (!element) return;
+      for (let [key, value] of Object.entries(element)) {
+        const getIndex = this._index.getIndex(key, this.bucketCount);
+        newhashMap[getIndex].push({ [key]: value });
+      }
+    }
+    this.hashMap = newhashMap;
   }
 }
 
