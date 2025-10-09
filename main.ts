@@ -4,6 +4,8 @@ import { Hasher } from "./classes/hasher";
 import { IndexCalculator } from "./classes/indexCalculator";
 import { BucketManager } from "./classes/bucketManager";
 import { ResizeManager } from "./classes/resizeManager";
+import { getJWT } from "./utils/utils";
+import { authGuard } from "./guard/authGuard";
 
 const server = fastify({ logger: true });
 
@@ -17,17 +19,28 @@ const hashMapInstance = new HashMap(
   resizeManager
 );
 
-server.get("/hashMap/length", async (request, reply) => {
-  const length = hashMapInstance.gethashMapLenght();
-  return { hashMapLength: length };
+server.post("/auth/login", async (request, reply) => {
+  const token = getJWT();
+  return token.length
+    ? reply.status(200).send({ success: true, token: token })
+    : reply.status(404).send({ error: "No token generated." });
 });
 
-server.get("/hashMap", async (request, reply) => {
+server.get(
+  "/hashMap/length",
+  { preHandler: authGuard },
+  async (request, reply) => {
+    const length = hashMapInstance.gethashMapLenght();
+    return { hashMapLength: length };
+  }
+);
+
+server.get("/hashMap", { preHandler: authGuard }, async (request, reply) => {
   const hashMap = hashMapInstance.gethashMap();
   return { hashMap: hashMap };
 });
 
-server.post("/key", async (request, reply) => {
+server.post("/key", { preHandler: authGuard }, async (request, reply) => {
   for (const [key, value] of Object.entries(
     request.body as Record<string, any>
   )) {
@@ -41,7 +54,7 @@ server.post("/key", async (request, reply) => {
 
 server.get<{
   Params: { key: string };
-}>("/keys/:key", async (request, reply) => {
+}>("/keys/:key", { preHandler: authGuard }, async (request, reply) => {
   const { key } = request.params;
   const keyFind = hashMapInstance.getKey(key);
   return {
@@ -49,13 +62,14 @@ server.get<{
   };
 });
 
-server.get("/keys", async (request, reply) => {
+server.get("/keys", { preHandler: authGuard }, async (request, reply) => {
   const dump = hashMapInstance.getAllData();
   return { count: dump.length, dump };
 });
 
 server.put<{ Params: { key: string } }>(
   "/keys/:key",
+  { preHandler: authGuard },
   async (request, reply) => {
     const { key } = request.params;
     let updateItem;
@@ -65,6 +79,18 @@ server.put<{ Params: { key: string } }>(
       updateItem = hashMapInstance.addToHashMap(key, value);
     }
     return updateItem;
+  }
+);
+
+server.delete<{ Params: { key: string } }>(
+  "/keys/:key",
+  { preHandler: authGuard },
+  async (request, reply) => {
+    const { key } = request.params;
+    const deleted = hashMapInstance.removeToHashMap(key);
+    return deleted
+      ? { message: "Key deleted successfully", key }
+      : reply.status(404).send({ error: "Key not found" });
   }
 );
 
