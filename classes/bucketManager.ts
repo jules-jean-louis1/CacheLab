@@ -1,29 +1,29 @@
-import HashMapIterator from "./hashmapIterator";
-
 export class BucketManager {
   constructor() {}
+
   add(hashMap: any, index: number, key: string, content: any): boolean {
     try {
+      // S'assurer que le bucket existe
+      if (!hashMap[index]) {
+        hashMap[index] = [];
+      }
+
       // Vérifier si la clé existe déjà dans ce bucket
       let keyExists = false;
-      if (hashMap[index].length > 0) {
-        for (let item of hashMap[index]) {
-          for (let existingKey of Object.keys(item)) {
-            if (existingKey === key) {
-              // Remplacer la valeur existante
-              item[existingKey] = content;
-              keyExists = true;
-              console.log("Key updated:", key);
-              break;
-            }
+      const bucket = hashMap[index];
+      if (bucket.length > 0) {
+        for (let item of bucket) {
+          if (item.key === key) {
+            item.value = content;
+            keyExists = true;
+            break;
           }
-          if (keyExists) break;
         }
       }
 
       // Si la clé n'existe pas, l'ajouter
       if (!keyExists) {
-        hashMap[index].push({ [key]: content });
+        bucket.push({ key: key, value: content });
       }
 
       return true;
@@ -34,15 +34,20 @@ export class BucketManager {
 
   remove(index: number, key: string, hashMap: any): boolean {
     try {
+      if (!hashMap[index] || hashMap[index].length === 0) return false;
+
+      const bucket = hashMap[index];
       let keyRemoved = false;
-      hashMap[index].forEach((item: any) => {
-        for (let existingKey of Object.keys(item)) {
-          if (existingKey === key) {
-            delete item[existingKey];
-            keyRemoved = true;
-          }
+
+      // Itérer à l'envers pour pouvoir splicer sans casser l'itération
+      for (let i = bucket.length - 1; i >= 0; i--) {
+        const item = bucket[i];
+        if (item.key === key) {
+          bucket.splice(i, 1);
+          keyRemoved = true;
         }
-      });
+      }
+
       return keyRemoved;
     } catch (e) {
       return false;
@@ -50,16 +55,12 @@ export class BucketManager {
   }
 
   get(index: number, key: string, hashMap: any): any {
-    const iterator = new HashMapIterator(hashMap);
-    while (iterator.hasNext()) {
-      const element = iterator.next();
-      if (!element) return;
-      for (let eK of Object.keys(element)) {
-        if (eK === key) {
-          return element;
-        }
-        return false;
-      }
+    if (!hashMap[index] || hashMap[index].length === 0) return null;
+
+    const bucket = hashMap[index];
+    for (const item of bucket) {
+      if (item.key === key) return item.value;
     }
+    return null;
   }
 }

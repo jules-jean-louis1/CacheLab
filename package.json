@@ -14,6 +14,8 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "dev": "nodemon --exec ts-node main.ts",
-    "dev:watch": "nodemon --watch . --ext ts --exec \"tsc && node dist/main.js\""
+    "dev:watch": "nodemon --watch . --ext ts --exec \"tsc && node dist/main.js\"",
+    "demo": "ts-node scripts/demoHashMap.ts",
+    "test:resize": "ts-node scripts/testResize.ts"
   }
 }

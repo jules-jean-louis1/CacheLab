@@ -72,26 +72,32 @@ class HashMap {
 
   checkAndResize() {
     if (this._resizeManager.shouldResize(this.elementCount, this.bucketCount)) {
-      console.log(
-        this._resizeManager.shouldResize(this.elementCount, this.bucketCount)
-      );
       const newBuckets = this._resizeManager.resize(this.bucketCount);
       this.reHashing(this.hashMap, newBuckets);
-      this.bucketCount *= 2;
+      this.bucketCount = newBuckets.length;
     }
   }
 
   reHashing(currenthashMap: any[], newhashMap: any[]): any[] | void {
     const iterator = new HashMapIterator(currenthashMap);
+    let moved = 0;
     while (iterator.hasNext()) {
       const element = iterator.next();
-      if (!element) return;
-      for (let [key, value] of Object.entries(element)) {
-        const getIndex = this._index.getIndex(key, this.bucketCount);
-        newhashMap[getIndex].push({ [key]: value });
-      }
+      // If iterator returns null for some reason, skip and continue
+      if (!element) continue;
+      const key = (element as any).key;
+      const value = (element as any).value;
+
+      const getIndex = this._index.getIndex(key, newhashMap.length);
+      if (!newhashMap[getIndex]) newhashMap[getIndex] = [];
+      newhashMap[getIndex].push({ key: key, value: value });
+      moved++;
     }
+
+    // Replace internal buckets with rehashed buckets
     this.hashMap = newhashMap;
+    // Recompute elementCount from moved items to ensure consistency
+    this.elementCount = moved;
   }
 }
 

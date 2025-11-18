@@ -1,0 +1,116 @@
+{
+  "info": {
+    "name": "CacheLab - Bruno Collection",
+    "_postman_id": "cachelab-bruno-collection",
+    "description": "Collection to test CacheLab API (import into Bruno/Postman).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "try {",
+              "  var json = pm.response.json();",
+              "  if (json && json.token) {",
+              "    pm.environment.set('token', json.token);",
+              "    console.log('Environment token set from response');",
+              "  } else {",
+              "    console.warn('No token found in response');",
+              "  }",
+              "} catch (e) {",
+              "  console.error('Failed to parse response or set token:', e);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Get full hashmap",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/hashMap", "host": ["{{baseUrl}}"], "path": ["hashMap"] }
+      },
+      "response": []
+    },
+    {
+      "name": "Get bucket count",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/hashMap/length", "host": ["{{baseUrl}}"], "path": ["hashMap","length"] }
+      },
+      "response": []
+    },
+    {
+      "name": "Add key (POST /key)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"cart:user_001\": [{ \"id_produit\": \"livre_123\", \"quantite\": 1, \"prix\": 15.99 }]}"
+        },
+        "url": { "raw": "{{baseUrl}}/key", "host": ["{{baseUrl}}"], "path": ["key"] }
+      },
+      "response": []
+    },
+    {
+      "name": "Get key (GET /keys/:key)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
+      },
+      "response": []
+    },
+    {
+      "name": "List all keys (GET /keys)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/keys", "host": ["{{baseUrl}}"], "path": ["keys"] }
+      },
+      "response": []
+    },
+    {
+      "name": "Update key (PUT /keys/:key)",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "[ { \"id_produit\": \"livre_123\", \"quantite\": 2, \"prix\": 15.99 } ]" },
+        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete key (DELETE /keys/:key)",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
+      },
+      "response": []
+    }
+  ]
+}

@@ -33,6 +33,26 @@ npm run build && npm start
 | `DELETE` | `/keys/:key` | Supprimer une clé |
 | `GET` | `/keys` | Lister toutes les clés |
 
+## 🧾 Seed data (format)
+
+Les données de seed sont définies dans `scripts/seedData.ts`. Chaque entrée est un objet `{ key: string, value: any }` où `key` est la clé stockée dans la hashmap et `value` est n'importe quelle valeur (par exemple un tableau pour un panier utilisateur).
+
+Exemple pour stocker des paniers utilisateurs :
+
+```ts
+export const initialData = [
+  {
+    key: "cart:user_001",
+    value: [
+      { id_produit: "livre_123", quantite: 1, prix: 15.99 }
+    ]
+  }
+];
+```
+
+Dans l'application, cette entrée est rechargée au démarrage et disponible via l'API `GET /keys/:key` (ex. `GET /keys/cart:user_001`).
+
+
 ## 🚀 Usage Rapide
 
 ```bash
@@ -70,7 +90,6 @@ classes/          # Classes métier HashMap
 ├── hasher.ts           # Fonction de hachage
 └── resizeManager.ts    # Redimensionnement
 
-controllers/      # Contrôleurs API
 docs/            # Documentation technique
 ```
 

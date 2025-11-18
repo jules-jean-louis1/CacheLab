@@ -6,6 +6,7 @@ import { BucketManager } from "./classes/bucketManager";
 import { ResizeManager } from "./classes/resizeManager";
 import { getJWT } from "./utils/utils";
 import { authGuard } from "./guard/authGuard";
+import { initialData } from "./scripts/seedData";
 
 const server = fastify({ logger: true });
 
@@ -18,6 +19,11 @@ const hashMapInstance = new HashMap(
   bucketManager,
   resizeManager
 );
+
+// Charger des données initiales dans le hashMap
+for (const entry of initialData) {
+  hashMapInstance.addToHashMap(entry.key, entry.value);
+}
 
 server.post("/auth/login", async (request, reply) => {
   const token = getJWT();
