@@ -1,61 +1,27 @@
 # Cahier des Charges Fonctionnel - CacheLab
 
-## 1. Besoins du Client
+## Besoins du Client
 
-### Performances Attendues
-- **Temps de réponse** : < 10ms pour les opérations CRUD
-- **Complexité temporelle** : O(1) en moyenne pour les opérations de base
-- **Gestion mémoire** : Redimensionnement automatique avec load factor optimal (0.75)
-- **Concurrent access** : Support de multiples requêtes simultanées
+Le système CacheLab doit répondre à des exigences de performance élevées avec des temps de réponse inférieurs à 10 millisecondes pour l'ensemble des opérations CRUD. La complexité temporelle attendue est de O(1) en moyenne pour garantir une scalabilité optimale. Le système doit supporter efficacement les accès concurrents multiples tout en maintenant une gestion mémoire intelligente par redimensionnement automatique avec un load factor optimal fixé à 0.75.
 
-### Cas d'Usage Principaux
-1. **Cache de session utilisateur** : Stockage temporaire des données de session
-2. **Cache de panier e-commerce** : Gestion des paniers temporaires avant validation
-3. **Cache de profils utilisateurs** : Accès rapide aux données fréquemment consultées
-4. **Cache temporaire** : Stockage de données avec TTL implicite
+Les cas d'usage principaux concernent le stockage temporaire de données de session utilisateur, la gestion de paniers e-commerce avant validation, l'accès rapide aux profils utilisateurs fréquemment consultés, et plus généralement tout stockage de données avec une durée de vie implicite. Le système vise à remplacer les solutions de cache traditionnelles par une implémentation custom hautement optimisée.
 
-## 2. Fonctionnalités Prioritaires
+## Fonctionnalités Prioritaires
 
-### Opérations CRUD sur Clés/Valeurs
-- **CREATE** : `POST /key` - Création de nouvelles paires clé/valeur
-- **READ** : `GET /keys/:key` - Récupération d'une valeur par sa clé
-- **UPDATE** : `PUT /keys/:key` - Modification d'une valeur existante
-- **DELETE** : `DELETE /keys/:key` - Suppression d'une clé
-- **LIST** : `GET /keys` - Listage de toutes les clés (optionnel)
+Le cœur fonctionnel repose sur les opérations CRUD complètes via une API REST. La création de nouvelles paires clé/valeur s'effectue par requête POST sur l'endpoint /key, permettant l'insertion de données structurées en JSON. La récupération des valeurs utilise un endpoint GET paramétré /keys/:key pour un accès direct et rapide. La modification des valeurs existantes passe par un endpoint PUT /keys/:key maintenant la cohérence des données. La suppression s'opère via DELETE /keys/:key avec confirmation de l'opération. Une fonctionnalité optionnelle de listage global est disponible sur GET /keys pour les besoins d'administration.
 
-### Fonctionnalités Avancées
-- **Authentification JWT** : Sécurisation des endpoints
-- **Monitoring** : Endpoint pour connaître l'état du cache (`/hashMap/length`)
-- **Redimensionnement automatique** : Maintien des performances avec l'augmentation des données
+L'authentification JWT sécurise l'ensemble des endpoints métier, garantissant un accès contrôlé aux données sensibles. Un système de monitoring intégré expose l'état du cache via des endpoints dédiés comme /hashMap/length. Le redimensionnement automatique de la structure interne maintient les performances lors de l'augmentation du volume de données sans intervention manuelle.
 
-## 3. Contraintes Techniques
+## Contraintes Techniques
 
-### Temps de Réponse
-- Opérations CRUD : < 10ms
-- Authentification : < 50ms
-- Redimensionnement : < 100ms (opération transparente)
+Les contraintes de performance imposent des temps de réponse stricts avec moins de 10 millisecondes pour les opérations CRUD, moins de 50 millisecondes pour l'authentification, et moins de 100 millisecondes pour les opérations de redimensionnement qui doivent rester transparentes pour l'utilisateur final.
 
-### Sécurité
-- Authentification obligatoire sur tous les endpoints métier
-- Validation des entrées (format clé/valeur)
-- Gestion d'erreurs sécurisée (pas de leak d'informations)
+La sécurité exige une authentification obligatoire sur tous les endpoints métier, une validation rigoureuse des formats clé/valeur en entrée, et une gestion d'erreurs sécurisée qui ne révèle aucune information sensible sur l'architecture interne. 
 
-### Scalabilité
-- Support jusqu'à 100,000 clés en mémoire
-- Redimensionnement automatique selon le load factor
-- Architecture extensible pour ajout de nouvelles fonctionnalités
+La scalabilité doit permettre le support d'au moins 100 000 clés en mémoire avec un redimensionnement automatique basé sur le load factor. L'architecture modulaire facilite l'ajout de nouvelles fonctionnalités sans impact sur les performances existantes.
 
-## 4. Spécialisation Choisie : Cache In-Memory
+## Spécialisation Cache In-Memory
 
-### Justification
-Le choix d'un **cache in-memory** répond aux besoins suivants :
-- **Performance maximale** : Accès direct à la RAM
-- **Faible latence** : Pas d'I/O disque
-- **Simplicité d'architecture** : Pas de base de données externe
-- **Scalabilité horizontale** : Peut être répliqué facilement
+Le choix d'un cache in-memory se justifie par la recherche de performances maximales grâce à l'accès direct à la RAM, éliminant toute latence liée aux opérations d'entrée/sortie disque. Cette approche simplifie considérablement l'architecture en évitant la dépendance à une base de données externe, tout en offrant une scalabilité horizontale par réplication facile sur plusieurs instances.
 
-### Implications Fonctionnelles
-- **Persistance** : Données volatiles (perdues au redémarrage)
-- **Capacité** : Limitée par la mémoire vive disponible
-- **Cohérence** : Garantie par l'architecture single-threaded de Node.js
-- **Durabilité** : Non garantie (acceptable pour un cache)
+Cette spécialisation implique que les données sont volatiles et perdues au redémarrage du système, ce qui est acceptable dans un contexte de cache. La capacité est naturellement limitée par la mémoire vive disponible, mais la cohérence est garantie par l'architecture single-threaded de Node.js. L'absence de durabilité persistante constitue un compromis acceptable au regard des performances obtenues et de la simplicité d'implémentation.

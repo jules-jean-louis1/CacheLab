@@ -9,7 +9,7 @@ const types_1 = require("../types/types");
 class Hasher {
     constructor() { }
     hash(key) {
-        return crypto_1.default.createHash(types_1.StrategyHash.SHA256).update(key).digest("hex");
+        return crypto_1.default.createHash(types_1.StrategyHash.SHA256).update(key.toString()).digest("hex");
     }
     slice(hash) {
         return hash.slice(0, 8);

@@ -11,10 +11,12 @@ class HashMap {
     _index;
     _bucketManager;
     _resizeManager;
-    constructor(_index, _bucketManager, _resizeManager) {
+    _skipList;
+    constructor(_index, _bucketManager, _resizeManager, _skipList) {
         this._index = _index;
         this._bucketManager = _bucketManager;
         this._resizeManager = _resizeManager;
+        this._skipList = _skipList;
     }
     gethashMap() {
         return this.hashMap;
@@ -25,6 +27,7 @@ class HashMap {
     addToHashMap(key, content) {
         const index = this._index.getIndex(key, this.bucketCount);
         const success = this._bucketManager.add(this.hashMap, index, key, content);
+        this._skipList.insert(key, content);
         if (success) {
             this.elementCount++;
             this.checkAndResize();
@@ -33,6 +36,7 @@ class HashMap {
     removeToHashMap(key) {
         const index = this._index.getIndex(key, this.bucketCount);
         const removed = this._bucketManager.remove(index, key, this.hashMap);
+        this._skipList.remove(key);
         if (removed) {
             this.elementCount--;
         }
@@ -61,23 +65,29 @@ class HashMap {
         if (this._resizeManager.shouldResize(this.elementCount, this.bucketCount)) {
             const newBuckets = this._resizeManager.resize(this.bucketCount);
             this.reHashing(this.hashMap, newBuckets);
-            this.bucketCount *= 2;
+            this.bucketCount = newBuckets.length;
         }
     }
     reHashing(currenthashMap, newhashMap) {
         const iterator = new hashmapIterator_1.default(currenthashMap);
+        let moved = 0;
         while (iterator.hasNext()) {
             const element = iterator.next();
+            // If iterator returns null for some reason, skip and continue
             if (!element)
-                return;
-            // element is { key, value }
+                continue;
             const key = element.key;
             const value = element.value;
-            // Use the new hash map size when recalculating indexes
             const getIndex = this._index.getIndex(key, newhashMap.length);
+            if (!newhashMap[getIndex])
+                newhashMap[getIndex] = [];
             newhashMap[getIndex].push({ key: key, value: value });
+            moved++;
         }
+        // Replace internal buckets with rehashed buckets
         this.hashMap = newhashMap;
+        // Recompute elementCount from moved items to ensure consistency
+        this.elementCount = moved;
     }
 }
 exports.default = HashMap;

@@ -1,8 +1,24 @@
 import { SkipNode } from "./skipNode";
 
+// TODO: Make Comparator
+// interface CalculatorInterface {
+//   processCalculator(a: any, b: any): any;
+// }
+
+// class Comparator implements CalculatorInterface {
+//   processCalculator(a: number, b: number) {
+//     return a > b ? true : false;
+//   }
+// }
+
+// class ComparatorString implements CalculatorInterface {
+//   processCalculator(a: string, b: string) {
+//     return a > b ? true : false;
+//   }
+// }
+
 export class SkipList {
   private levels: number;
-  private updatedSkipNode: SkipNode[];
   private p: number;
   public head: SkipNode;
   public tail: SkipNode;
@@ -11,7 +27,6 @@ export class SkipList {
     this.levels = levels;
     this.head = new SkipNode(Number.MIN_VALUE);
     this.tail = new SkipNode(Number.MAX_VALUE);
-    this.updatedSkipNode = Array<SkipNode>();
     this.p = p;
   }
 
@@ -21,7 +36,7 @@ export class SkipList {
   }
 
   // Search
-  search(target: number): string[] | null {
+  search(target: number | string): string[] | null {
     let curr: SkipNode | null = this.head;
 
     // Traverse the skip list
@@ -30,7 +45,7 @@ export class SkipList {
       while (
         curr.right !== null &&
         curr.right.key !== null &&
-        curr.right.key <= target
+        curr.right.key! <= target
       ) {
         curr = curr.right;
       }
@@ -49,7 +64,7 @@ export class SkipList {
   }
   // Insert
 
-  insert(key: number, value: string) {
+  insert(key: number | string, value: string) {
     let curr: SkipNode | null = this.head;
     let nodesToUpdate: SkipNode[] = [];
     let keyExists = false;
@@ -109,7 +124,7 @@ export class SkipList {
     }
   }
 
-  remove(key: number, value: string | null = null): boolean {
+  remove(key: number | string, value: string | null = null): boolean {
     let curr: SkipNode | null = this.head;
     let nodesToDelete: SkipNode[] = [];
     let keyFound = false;
@@ -175,7 +190,7 @@ export class SkipList {
     return node;
   }
 
-  range(start: number, end: number) {
+  range(start: number | string, end: number | string) {
     if (start >= end) return false;
 
     let curr: SkipNode | null = this.head;
@@ -185,7 +200,7 @@ export class SkipList {
 
     // Recherche le start key a l'aide de la SkipList
     while (curr) {
-      while (curr.right && (curr.right.key as number) <= start) {
+      while (curr.right && curr.right.key! <= start) {
         curr = curr.right;
       }
       if (curr?.down === null && curr.key === start) {

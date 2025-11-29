@@ -1,116 +1,410 @@
 {
   "info": {
-    "name": "CacheLab - Bruno Collection",
-    "_postman_id": "cachelab-bruno-collection",
-    "description": "Collection to test CacheLab API (import into Bruno/Postman).",
+    "name": "CacheLab - Advanced HashMap Collection API",
+    "_postman_id": "cachelab-bruno-collection-v2",
+    "description": "Complete collection to test CacheLab Advanced API with Collections, Persistence, and Validation (import into Bruno/Postman).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080" },
-    { "key": "token", "value": "" }
+    { "key": "token", "value": "" },
+    { "key": "hashMapName", "value": "test_map" },
+    { "key": "keyName", "value": "test_key" }
   ],
   "item": [
     {
-      "name": "Auth - Login",
-      "request": {
-        "method": "POST",
-        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
-      },
-      "event": [
+      "name": "🔐 Authentication",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "try {",
-              "  var json = pm.response.json();",
-              "  if (json && json.token) {",
-              "    pm.environment.set('token', json.token);",
-              "    console.log('Environment token set from response');",
-              "  } else {",
-              "    console.warn('No token found in response');",
-              "  }",
-              "} catch (e) {",
-              "  console.error('Failed to parse response or set token:', e);",
-              "}"
-            ]
-          }
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  var json = pm.response.json();",
+                  "  if (json && json.success && json.data && json.data.token) {",
+                  "    pm.environment.set('token', json.data.token);",
+                  "    console.log('Token set successfully:', json.data.token);",
+                  "  } else {",
+                  "    console.warn('No token found in response');",
+                  "  }",
+                  "} catch (e) {",
+                  "  console.error('Failed to parse response or set token:', e);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
         }
-      ],
-      "response": []
+      ]
     },
     {
-      "name": "Get full hashmap",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
-        "url": { "raw": "{{baseUrl}}/hashMap", "host": ["{{baseUrl}}"], "path": ["hashMap"] }
-      },
-      "response": []
-    },
-    {
-      "name": "Get bucket count",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "url": { "raw": "{{baseUrl}}/hashMap/length", "host": ["{{baseUrl}}"], "path": ["hashMap","length"] }
-      },
-      "response": []
-    },
-    {
-      "name": "Add key (POST /key)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"cart:user_001\": [{ \"id_produit\": \"livre_123\", \"quantite\": 1, \"prix\": 15.99 }]}"
+      "name": "🏥 Health & Monitoring",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          },
+          "response": []
         },
-        "url": { "raw": "{{baseUrl}}/key", "host": ["{{baseUrl}}"], "path": ["key"] }
-      },
-      "response": []
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/stats", "host": ["{{baseUrl}}"], "path": ["stats"] }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Get key (GET /keys/:key)",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
-      },
-      "response": []
+      "name": "📦 Collection Management",
+      "item": [
+        {
+          "name": "Create HashMap",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{hashMapName}}\",\n  \"initialData\": {\n    \"user_1\": { \"name\": \"John\", \"age\": 30 },\n    \"user_2\": { \"name\": \"Jane\", \"age\": 25 }\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/hashMap", "host": ["{{baseUrl}}"], "path": ["hashMap"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List All HashMaps",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/hashMaps", "host": ["{{baseUrl}}"], "path": ["hashMaps"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get HashMap Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rename HashMap",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newName\": \"renamed_map\"\n}"
+            },
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/rename", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "rename"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete HashMap",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}"] 
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "List all keys (GET /keys)",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "url": { "raw": "{{baseUrl}}/keys", "host": ["{{baseUrl}}"], "path": ["keys"] }
-      },
-      "response": []
+      "name": "🔑 Key-Value Operations",
+      "item": [
+        {
+          "name": "Add Multiple Keys",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_user_001\": [\n    { \"id_produit\": \"livre_123\", \"quantite\": 1, \"prix\": 15.99 }\n  ],\n  \"cart_user_002\": [\n    { \"id_produit\": \"dvd_456\", \"quantite\": 2, \"prix\": 19.99 }\n  ],\n  \"session_data\": {\n    \"userId\": 123,\n    \"lastActivity\": \"2025-11-29T10:00:00Z\"\n  }\n}"
+            },
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/keys", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "keys"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Specific Key",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/keys/{{keyName}}", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "keys", "{{keyName}}"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Key Value",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": {\n    \"updated\": true,\n    \"timestamp\": \"2025-11-29T14:00:00Z\",\n    \"data\": \"nouvelle valeur\"\n  }\n}"
+            },
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/keys/{{keyName}}", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "keys", "{{keyName}}"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Key",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/keys/{{keyName}}", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "keys", "{{keyName}}"] 
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Update key (PUT /keys/:key)",
-      "request": {
-        "method": "PUT",
-        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "body": { "mode": "raw", "raw": "[ { \"id_produit\": \"livre_123\", \"quantite\": 2, \"prix\": 15.99 } ]" },
-        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
-      },
-      "response": []
+      "name": "💾 Persistence Operations",
+      "item": [
+        {
+          "name": "Save HashMap to File",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/save", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "save"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Load HashMap from File",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"loaded_map\",\n  \"filename\": \"test_map.json\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/hashMap/load", "host": ["{{baseUrl}}"], "path": ["hashMap", "load"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Save Entire Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"my_collection_backup.json\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/collection/save", "host": ["{{baseUrl}}"], "path": ["collection", "save"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Load Entire Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"collection_backup.json\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/collection/load", "host": ["{{baseUrl}}"], "path": ["collection", "load"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List Save Files",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/saves", "host": ["{{baseUrl}}"], "path": ["saves"] }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Delete key (DELETE /keys/:key)",
-      "request": {
-        "method": "DELETE",
-        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "url": { "raw": "{{baseUrl}}/keys/{{key}}", "host": ["{{baseUrl}}"], "path": ["keys","{{key}}"], "variable": [ { "key": "key", "value": "cart:user_001" } ] }
-      },
-      "response": []
+      "name": "📊 Export & Analytics",
+      "item": [
+        {
+          "name": "Export HashMap to CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"export_data.csv\"\n}"
+            },
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/export/csv", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "export", "csv"] 
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Configuration",
+      "item": [
+        {
+          "name": "Update Persistence Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"autoSave\": true,\n  \"saveInterval\": 180000,\n  \"backupCount\": 3,\n  \"compression\": false\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/config/persistence", "host": ["{{baseUrl}}"], "path": ["config", "persistence"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🧪 Test Scenarios",
+      "item": [
+        {
+          "name": "Validation Error Test - Invalid HashMap Name",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/hashMap", "host": ["{{baseUrl}}"], "path": ["hashMap"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation Error Test - Invalid Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"\": \"invalid empty key\"\n}"
+            },
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/{{hashMapName}}/keys", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "{{hashMapName}}", "keys"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Not Found Test - Non-existent HashMap",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { 
+              "raw": "{{baseUrl}}/hashMap/non_existent_map", 
+              "host": ["{{baseUrl}}"], 
+              "path": ["hashMap", "non_existent_map"] 
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Conflict Test - Duplicate HashMap Name",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"cart_user\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/hashMap", "host": ["{{baseUrl}}"], "path": ["hashMap"] }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

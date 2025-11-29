@@ -1,8 +1,13 @@
 ```bash
-# Première série - différents utilisateurs
-curl -d '{"cart:user_001": [{"id_produit": "livre_123", "quantite": 1, "prix": 15.99}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
+# Authentication
+curl -X POST http://localhost:8080/auth/login
 
-curl -d '{"cart:user_010": [{"id_produit": "stylo_456", "quantite": 3, "prix": 2.50}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
+# Ajouter des données variées pour tester le cache
+
+# Première série - différents utilisateurs
+curl -d '{"cart:user_001": [{"id_produit": "livre_123", "quantite": 1, "prix": 15.99}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjAxMDE0OTg4LCJkYXRhIjoiYXV0aF9jYWNoZWxhYiIsImlhdCI6MTc2MDEwMTEzOH0.Ly5hoWHLnI_L5pH9fcR-0JyQcy2-OeTnyltmyc0Iuck"
+
+curl -d '{"cart:user_010": [{"id_produit": "stylo_456", "quantite": 3, "prix": 2.50}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjAxMDE0OTg4LCJkYXRhIjoiYXV0aF9jYWNoZWxhYiIsImlhdCI6MTc2MDEwMTEzOH0.Ly5hoWHLnI_L5pH9fcR-0JyQcy2-OeTnyltmyc0Iuck"
 
 curl -d '{"cart:user_100": [{"id_produit": "cahier_789", "quantite": 2, "prix": 8.00}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
 
@@ -44,3 +49,10 @@ curl -d '{"temp:data_001": [{"type": "cache", "ttl": 3600}]}' -H "Content-Type: 
 ```bash
 curl -d '{"analytics:visitor_001": [{"page": "home", "duration": 45}]}' -H "Content-Type: application/json" -X POST http://localhost:8080/key
 ```
+
+```bash
+curl -X DELETE http://localhost:8080/keys/cart:user_001 -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjAxMDE0OTg4LCJkYXRhIjoiYXV0aF9jYWNoZWxhYiIsImlhdCI6MTc2MDEwMTEzOH0.Ly5hoWHLnI_L5pH9fcR-0JyQcy2-OeTnyltmyc0Iuck"
+
+```
+// Mettre en place un time to live et la sauvegarde persistante avec fs.writeFileSync et fs.readFileSync
+// Faire un orm a la main, un bucket S3 aussi.

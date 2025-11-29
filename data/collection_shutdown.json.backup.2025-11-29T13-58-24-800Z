@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "createdAt": "2025-11-29T13:57:59.558Z",
+    "totalHashMaps": 1,
+    "nextIndex": 1,
+    "savedAt": "2025-11-29T13:57:59.559Z",
+    "format": "collection"
+  },
+  "collection": {
+    "metadata": {
+      "version": "1.0.0",
+      "createdAt": "2025-11-29T13:57:59.558Z",
+      "totalHashMaps": 1,
+      "nextIndex": 1
+    },
+    "hashMaps": {
+      "cart_user": {
+        "id": 1,
+        "createdAt": "2025-11-29T13:57:41.382Z",
+        "updatedAt": "2025-11-29T13:57:41.382Z",
+        "lastAccessed": "2025-11-29T13:57:41.382Z",
+        "data": [
+          {
+            "key": "cart:user_010",
+            "value": [
+              {
+                "id_produit": "livre_123",
+                "quantite": 1,
+                "prix": 15.99
+              }
+            ]
+          },
+          {
+            "key": "product_id:124",
+            "value": [
+              {
+                "quantite": 2,
+                "prix": 2.49
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -4,8 +4,8 @@ import { StrategyHash } from "../types/types";
 export class Hasher {
   constructor() {}
 
-  hash(key: string): string {
-    return crypto.createHash(StrategyHash.SHA256).update(key).digest("hex");
+  hash(key: string | number): string {
+    return crypto.createHash(StrategyHash.SHA256).update(key.toString()).digest("hex");
   }
 
   slice(hash: string): string {
