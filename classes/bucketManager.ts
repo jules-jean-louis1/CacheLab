@@ -1,7 +1,7 @@
 export class BucketManager {
   constructor() {}
 
-  add(hashMap: any, index: number, key: string, content: any): boolean {
+  add(hashMap: any, index: number, key: string | number, content: any): boolean {
     try {
       // S'assurer que le bucket existe
       if (!hashMap[index]) {
@@ -32,7 +32,7 @@ export class BucketManager {
     }
   }
 
-  remove(index: number, key: string, hashMap: any): boolean {
+  remove(index: number, key: string | number, hashMap: any): boolean {
     try {
       if (!hashMap[index] || hashMap[index].length === 0) return false;
 
@@ -54,7 +54,7 @@ export class BucketManager {
     }
   }
 
-  get(index: number, key: string, hashMap: any): any {
+  get(index: number, key: string | number, hashMap: any): any {
     if (!hashMap[index] || hashMap[index].length === 0) return null;
 
     const bucket = hashMap[index];

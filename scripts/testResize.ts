@@ -2,6 +2,7 @@ import { Hasher } from "../classes/hasher";
 import { IndexCalculator } from "../classes/indexCalculator";
 import { BucketManager } from "../classes/bucketManager";
 import { ResizeManager } from "../classes/resizeManager";
+import { SkipList } from "../classes/skipList";
 import HashMap from "../classes/hashmap";
 
 function assert(condition: boolean, message: string) {
@@ -16,7 +17,8 @@ async function run() {
   const indexCalculator = new IndexCalculator(hasher);
   const bucketManager = new BucketManager();
   const resizeManager = new ResizeManager();
-  const map = new HashMap(indexCalculator, bucketManager, resizeManager);
+  const skipList = new SkipList();
+  const map = new HashMap(indexCalculator, bucketManager, resizeManager, skipList);
 
   // Insert enough items to trigger resize (initial bucketCount is 10 => resize at 8)
   const keys: string[] = [];

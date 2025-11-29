@@ -14,7 +14,6 @@ class BucketManager {
             const bucket = hashMap[index];
             if (bucket.length > 0) {
                 for (let item of bucket) {
-                    // item is now { key, value }
                     if (item.key === key) {
                         item.value = content;
                         keyExists = true;
@@ -42,7 +41,6 @@ class BucketManager {
             for (let i = bucket.length - 1; i >= 0; i--) {
                 const item = bucket[i];
                 if (item.key === key) {
-                    // retirer l'entrée du bucket
                     bucket.splice(i, 1);
                     keyRemoved = true;
                 }

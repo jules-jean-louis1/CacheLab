@@ -1,73 +1,22 @@
 # Note de Cadrage et Planification - CacheLab
 
-## 1. Démarche et Objectifs
+## Démarche et Objectifs
 
-### Démarche Choisie
-- **Approche Agile** : Développement itératif avec feedback continu
-- **Architecture Modulaire** : Séparation des responsabilités en classes distinctes
-- **Test-Driven Development** : Tests unitaires et d'intégration
-- **Documentation Continue** : Mise à jour de la documentation en parallèle du code
+Le projet CacheLab adopte une démarche agile privilégiant le développement itératif avec feedback continu pour s'adapter rapidement aux exigences évolutives. L'architecture modulaire avec séparation claire des responsabilités en classes distinctes garantit la maintenabilité et l'extensibilité du système. Une approche test-driven development encadre le développement avec des tests unitaires et d'intégration systématiques. La documentation technique évolue en parallèle du code pour maintenir une cohérence permanente entre implémentation et spécifications.
 
-### Objectifs Principaux
-1. **Performance** : Système de cache haute performance (< 10ms par opération)
-2. **Scalabilité** : Support de 100k+ clés avec redimensionnement automatique
-3. **Sécurité** : Authentification JWT et validation des entrées
-4. **Maintenabilité** : Code TypeScript modulaire et documenté
+Les objectifs principaux visent la création d'un système de cache haute performance avec des temps de réponse inférieurs à 10 millisecondes par opération. La scalabilité doit permettre le support de plus de 100 000 clés avec redimensionnement automatique transparent. La sécurité s'appuie sur une authentification JWT robuste et une validation systématique des entrées. La maintenabilité repose sur un code TypeScript modulaire, typé et exhaustivement documenté.
 
-### Critères de Succès
-- ✅ Tous les endpoints CRUD fonctionnels
-- ✅ Complexité O(1) moyenne pour les opérations
-- ✅ Authentification JWT opérationnelle
-- ✅ Tests de charge validés (> 1000 req/sec)
-- ✅ Documentation technique complète
+Les critères de succès incluent la fonctionnalité complète de tous les endpoints CRUD, le maintien d'une complexité O(1) moyenne pour les opérations de base, l'opérationnalité de l'authentification JWT, la validation par tests de charge dépassant 1000 requêtes par seconde, et la completude de la documentation technique couvrant l'ensemble des aspects fonctionnels et techniques.
 
-## 2. Décomposition en Tâches
+## Décomposition en Tâches et Planification
 
-### Phase 1 : Architecture et Core (TERMINÉE ✅)
-| Tâche | Statut | Temps Estimé | Temps Réel |
-|-------|--------|--------------|------------|
-| Setup projet TypeScript/Node.js | ✅ | 2h | 1.5h |
-| Implémentation HashMap de base | ✅ | 8h | 6h |
-| Système de hachage et collision | ✅ | 4h | 3h |
-| Pattern Iterator | ✅ | 2h | 2h |
-| **Total Phase 1** | ✅ | **16h** | **12.5h** |
+Le développement s'organise en cinq phases distinctes permettant une progression logique et maîtrisée. La première phase d'architecture et développement du core s'est achevée avec succès, incluant le setup du projet TypeScript/Node.js, l'implémentation de base de la HashMap avec système de hachage et gestion des collisions, ainsi que l'intégration du pattern Iterator. Cette phase initialement estimée à 16 heures s'est finalisée en 12.5 heures, témoignant d'une bonne maîtrise technique.
 
-### Phase 2 : API REST (TERMINÉE ✅)
-| Tâche | Statut | Temps Estimé | Temps Réel |
-|-------|--------|--------------|------------|
-| Setup Fastify et endpoints de base | ✅ | 3h | 2h |
-| Implémentation CRUD endpoints | ✅ | 5h | 4h |
-| Système d'authentification JWT | ✅ | 3h | 2.5h |
-| Auth Guard middleware | ✅ | 2h | 1.5h |
-| **Total Phase 2** | ✅ | **13h** | **10h** |
+La seconde phase consacrée à l'API REST s'est également terminée dans les délais avec la mise en place de Fastify, l'implémentation complète des endpoints CRUD, l'intégration du système d'authentification JWT et la création du middleware Auth Guard. Les 13 heures estimées ont été réduites à 10 heures effectives grâce à l'utilisation d'outils et frameworks appropriés.
 
-### Phase 3 : Fonctionnalités Avancées (EN COURS 🔄)
-| Tâche | Statut | Temps Estimé | Temps Réel |
-|-------|--------|--------------|------------|
-| Redimensionnement automatique | ✅ | 4h | 3h |
-| Endpoint DELETE | ❌ | 1h | - |
-| Gestion d'erreurs améliorée | ❌ | 2h | - |
-| Validation des entrées | ❌ | 2h | - |
-| **Total Phase 3** | 🔄 | **9h** | **3h** |
+La troisième phase de fonctionnalités avancées est actuellement en cours avec le redimensionnement automatique déjà implémenté. Il reste à finaliser l'endpoint DELETE, améliorer la gestion d'erreurs et renforcer la validation des entrées, représentant 6 heures de développement supplémentaires sur les 9 heures prévues.
 
-### Phase 4 : Documentation et Tests (À FAIRE 📋)
-| Tâche | Statut | Temps Estimé | Temps Réel |
-|-------|--------|--------------|------------|
-| Cahier des charges fonctionnel | ✅ | 4h | 2h |
-| Cahier des charges technique | ✅ | 6h | 3h |
-| Tests unitaires | ❌ | 8h | - |
-| Tests d'intégration | ❌ | 4h | - |
-| Documentation API (OpenAPI) | ❌ | 3h | - |
-| **Total Phase 4** | 🔄 | **25h** | **5h** |
-
-### Phase 5 : Optimisation et Déploiement (À FAIRE 📋)
-| Tâche | Statut | Temps Estimé | Temps Réel |
-|-------|--------|--------------|------------|
-| Tests de performance | ❌ | 4h | - |
-| Optimisations HashMap | ❌ | 3h | - |
-| Monitoring et métriques | ❌ | 3h | - |
-| Documentation déploiement | ❌ | 2h | - |
-| **Total Phase 5** | ❌ | **12h** | **-** |
+Les phases quatre et cinq couvrent respectivement la documentation/tests et l'optimisation/déploiement. La documentation technique est largement avancée avec les cahiers des charges fonctionnel et technique complétés. Les tests unitaires et d'intégration ainsi que la documentation API OpenAPI restent à développer. La phase finale d'optimisation inclura les tests de performance, les optimisations HashMap spécifiques, l'implémentation du monitoring et la documentation de déploiement.
 
 ## 3. Répartition des Rôles dans l'Équipe
 
@@ -120,69 +69,15 @@ Semaine 4 : 📋 À PLANIFIER
 | Documentation finale | J+25 | ❌ |
 | Déploiement | J+28 | ❌ |
 
-## 5. Identification des Risques
+## Identification et Gestion des Risques
 
-### Risques Techniques
+Les risques techniques majeurs concernent principalement les performances et la fiabilité du système. Le risque de performance insuffisante, bien que de probabilité faible grâce à l'architecture optimisée, représente un impact critique si les temps de réponse dépassent les 10 millisecondes requises. La mitigation s'appuie sur des tests de charge réguliers, l'utilisation des performance hooks Node.js pour le profiling, et l'optimisation continue de la fonction de hachage selon les résultats observés.
 
-#### 1. Performance Insuffisante 🔴 ÉLEVÉ
-- **Impact** : Temps de réponse > 10ms
-- **Probabilité** : Faible (architecture optimisée)
-- **Mitigation** : 
-  - Tests de charge réguliers
-  - Profiling avec Node.js performance hooks
-  - Optimisation fonction de hachage si nécessaire
+Les bugs potentiels dans les mécanismes de redimensionnement constituent un risque moyen mais aux conséquences graves en cas de perte de données. La logique complexe du re-hashing nécessite des tests unitaires spécifiques, une validation systématique de l'intégrité des données, et une journalisation détaillée pendant les opérations de redimensionnement. Les collisions de hash excessives, bien que peu probables avec la fonction de hachage testée, pourraient dégrader les performances vers O(n). Des métriques de distribution, des tests avec données réelles et un algorithme de hash alternatif en backup constituent les garde-fous appropriés.
 
-#### 2. Bugs dans le Redimensionnement 🟡 MOYEN
-- **Impact** : Perte de données lors du resize
-- **Probabilité** : Moyenne (logique complexe)
-- **Mitigation** :
-  - Tests unitaires spécifiques au resize
-  - Validation de l'intégrité des données
-  - Logs détaillés pendant le redimensionnement
+Les risques fonctionnels incluent une potentielle compromission de l'authentification malgré l'utilisation du standard JWT, nécessitant une gestion sécurisée des clés secrètes, une expiration appropriée des tokens et des tests de sécurité réguliers. La gestion mémoire, bien que confiée au garbage collector Node.js, requiert un monitoring continu, des tests de longue durée et des limites sur la taille du cache pour prévenir les fuites mémoire et les crashes serveur.
 
-#### 3. Collisions de Hash Excessives 🟡 MOYEN
-- **Impact** : Dégradation vers O(n) dans certains buckets
-- **Probabilité** : Faible (fonction de hash testée)
-- **Mitigation** :
-  - Métriques sur la distribution des hash
-  - Tests avec données réelles
-  - Algorithme de hash alternatif en backup
-
-### Risques Fonctionnels
-
-#### 4. Authentification Compromise 🔴 ÉLEVÉ
-- **Impact** : Accès non autorisé au cache
-- **Probabilité** : Faible (JWT standard)
-- **Mitigation** :
-  - Clé secrète sécurisée
-  - Expiration des tokens
-  - Tests de sécurité
-
-#### 5. Gestion Mémoire 🟡 MOYEN
-- **Impact** : Memory leaks, crash serveur
-- **Probabilité** : Faible (GC Node.js)
-- **Mitigation** :
-  - Monitoring mémoire
-  - Tests de longue durée
-  - Limits sur la taille du cache
-
-### Risques Projet
-
-#### 6. Retard sur Tests 🟡 MOYEN
-- **Impact** : Qualité non garantie
-- **Probabilité** : Moyenne (temps sous-estimé)
-- **Mitigation** :
-  - Priorisation tests critiques
-  - Tests automatisés
-  - Review de code
-
-#### 7. Documentation Incomplète 🟢 FAIBLE
-- **Impact** : Maintenabilité réduite
-- **Probabilité** : Faible (déjà avancée)
-- **Mitigation** :
-  - Documentation continue
-  - Templates standardisés
-  - Review documentation
+Les risques projet concernent principalement les retards potentiels sur les phases de tests qui pourraient compromettre la qualité finale. La mitigation passe par une priorisation des tests critiques, l'automatisation maximale des tests et des reviews de code systématiques. Le risque de documentation incomplète reste faible étant donné l'avancement actuel, mais nécessite une approche de documentation continue avec des templates standardisés et des reviews régulières.
 
 ## 6. Métriques de Suivi
 

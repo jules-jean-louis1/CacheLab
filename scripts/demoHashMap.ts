@@ -3,13 +3,15 @@ import { Hasher } from "../classes/hasher";
 import { IndexCalculator } from "../classes/indexCalculator";
 import { BucketManager } from "../classes/bucketManager";
 import { ResizeManager } from "../classes/resizeManager";
+import { SkipList } from "../classes/skipList";
 
 async function runDemo() {
   const hasher = new Hasher();
   const indexCalculator = new IndexCalculator(hasher);
   const bucketManager = new BucketManager();
   const resizeManager = new ResizeManager();
-  const map = new HashMap(indexCalculator, bucketManager, resizeManager);
+  const skipList = new SkipList();
+  const map = new HashMap(indexCalculator, bucketManager, resizeManager, skipList);
 
   console.log("Initial bucket count:", map.gethashMapLenght());
 

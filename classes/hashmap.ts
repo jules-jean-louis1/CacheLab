@@ -2,6 +2,7 @@ import { BucketManager } from "./bucketManager";
 import HashMapIterator from "./hashmapIterator";
 import { IndexCalculator } from "./indexCalculator";
 import { ResizeManager } from "./resizeManager";
+import { SkipList } from "./skipList";
 
 class HashMap {
   private hashMap: any[] = [[], [], [], [], [], [], [], [], [], []];
@@ -10,15 +11,18 @@ class HashMap {
   private _index: IndexCalculator;
   private _bucketManager: BucketManager;
   private _resizeManager: ResizeManager;
+  private _skipList: SkipList;
 
   constructor(
     _index: IndexCalculator,
     _bucketManager: BucketManager,
-    _resizeManager: ResizeManager
+    _resizeManager: ResizeManager,
+    _skipList: SkipList,
   ) {
     this._index = _index;
     this._bucketManager = _bucketManager;
     this._resizeManager = _resizeManager;
+    this._skipList = _skipList;
   }
 
   gethashMap() {
@@ -29,25 +33,27 @@ class HashMap {
     return this.bucketCount;
   }
 
-  addToHashMap(key: string, content: any) {
+  addToHashMap(key: string | number, content: any) {
     const index = this._index.getIndex(key, this.bucketCount);
     const success = this._bucketManager.add(this.hashMap, index, key, content);
+    this._skipList.insert(key, content);
     if (success) {
       this.elementCount++;
       this.checkAndResize();
     }
   }
 
-  removeToHashMap(key: string): boolean {
+  removeToHashMap(key: string | number): boolean {
     const index = this._index.getIndex(key, this.bucketCount);
     const removed = this._bucketManager.remove(index, key, this.hashMap);
+    this._skipList.remove(key);
     if (removed) {
       this.elementCount--;
     }
     return removed;
   }
 
-  getKey(key: string) {
+  getKey(key: string | number) {
     const index = this._index.getIndex(key, this.bucketCount);
     return this._bucketManager.get(index, key, this.hashMap);
   }

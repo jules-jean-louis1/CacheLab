@@ -8,12 +8,14 @@ const hasher_1 = require("../classes/hasher");
 const indexCalculator_1 = require("../classes/indexCalculator");
 const bucketManager_1 = require("../classes/bucketManager");
 const resizeManager_1 = require("../classes/resizeManager");
+const skipList_1 = require("../classes/skipList");
 async function runDemo() {
     const hasher = new hasher_1.Hasher();
     const indexCalculator = new indexCalculator_1.IndexCalculator(hasher);
     const bucketManager = new bucketManager_1.BucketManager();
     const resizeManager = new resizeManager_1.ResizeManager();
-    const map = new hashmap_1.default(indexCalculator, bucketManager, resizeManager);
+    const skipList = new skipList_1.SkipList();
+    const map = new hashmap_1.default(indexCalculator, bucketManager, resizeManager, skipList);
     console.log("Initial bucket count:", map.gethashMapLenght());
     // Basic add / get / update / remove
     console.log('\n-- Basic operations --');

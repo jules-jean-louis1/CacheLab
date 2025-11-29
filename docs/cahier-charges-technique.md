@@ -1,110 +1,34 @@
 # Cahier des Charges Techniques - CacheLab
 
-## 1. Langage Choisi : Node.js/TypeScript
+## Choix du Langage : Node.js/TypeScript
 
-### Justification Argumentée
+Le choix de Node.js avec TypeScript s'appuie sur une analyse multicritère prenant en compte les performances, la facilité de développement et l'écosystème disponible. 
 
-#### Critères de Performance
-- **Event Loop Non-Bloquant** : Idéal pour les opérations I/O intensives (API REST)
-- **Complexité O(1)** : HashMap native optimisée par V8
-- **Faible Overhead Mémoire** : Gestion automatique de la mémoire par V8
-- **Concurrence** : Architecture single-threaded évite les race conditions
+En termes de performance, l'event loop non-bloquant de Node.js s'avère idéal pour les opérations intensives d'entrée/sortie caractéristiques des API REST. Le moteur V8 optimise nativement les structures de type HashMap, garantissant une complexité O(1) pour les opérations de base. La gestion automatique de la mémoire par V8 réduit l'overhead mémoire tout en évitant les fuites mémoire. L'architecture single-threaded élimine naturellement les race conditions dans un contexte de cache partagé.
 
-#### Facilité de Développement
-- **TypeScript** : Typage statique améliore la maintenabilité
-- **Écosystème Mature** : npm, debugging tools, IDE support
-- **Syntaxe Familière** : Proche du JavaScript, courbe d'apprentissage faible
-- **Développement Rapide** : Hot reload, tooling avancé
+La facilité de développement constitue un avantage majeur avec TypeScript qui apporte un typage statique améliorant significativement la maintenabilité du code. L'écosystème mature offre des outils de debugging avancés et un support IDE complet. La syntaxe proche du JavaScript réduit la courbe d'apprentissage, tandis que les outils comme hot reload et nodemon accélèrent le cycle de développement.
 
-#### Écosystème Disponible
-- **Fastify** : Framework performant pour APIs REST
-- **jsonwebtoken** : Authentification JWT standardisée
-- **ts-node** : Exécution directe TypeScript en développement
-- **nodemon** : Auto-reload pour le développement
+L'écosystème disponible présente des solutions éprouvées comme Fastify pour les API REST haute performance, jsonwebtoken pour l'authentification JWT standardisée, ts-node pour l'exécution directe du TypeScript en développement, et de nombreux packages npm spécialisés. Comparativement à Go, Node.js/TypeScript obtient un score global de 18/20 contre 16/20, principalement grâce à sa supériorité en facilité de développement et écosystème, compensant un léger désavantage en performance CPU pure.
 
-### Comparaison avec Go
-| Critère | Node.js/TypeScript | Go |
-|---------|-------------------|-----|
-| Performance CPU | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Performance I/O | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Facilité dev | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Écosystème | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Total** | **18/20** | **16/20** |
+## Architecture Applicative
 
-## 2. Architecture Applicative
+L'architecture suit un modèle en couches avec séparation claire des responsabilités. Le serveur API REST basé sur Fastify constitue la couche de présentation, exposant les endpoints sur le port 8080 avec logging intégré et gestion des requêtes/réponses JSON. Un middleware d'authentification protège systématiquement tous les endpoints métier.
 
-### Vue d'Ensemble
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Client HTTP   │───▶│   Fastify API   │───▶│  HashMap Core   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │                         │
-                              ▼                         ▼
-                    ┌─────────────────┐    ┌─────────────────┐
-                    │  Auth Guard     │    │  Bucket Manager │
-                    │  (JWT)          │    │  Resize Manager │
-                    └─────────────────┘    └─────────────────┘
-```
+Le module de stockage en mémoire forme le cœur technique avec une HashMap custom comme structure principale de données. La gestion des collisions s'effectue par chaînage via un BucketManager dédié, tandis qu'un ResizeManager assure le redimensionnement automatique selon le load factor. Une fonction de hachage personnalisée et un IndexCalculator optimisent la distribution et le calcul d'index par modulo.
 
-### Composants Principaux
+Le système d'authentification repose sur des tokens JWT pour une approche stateless, avec un Auth Guard middleware qui protège l'ensemble des endpoints sensibles. La gestion de l'expiration des tokens maintient un niveau de sécurité approprié sans surcharge administrative.
 
-#### 1. Serveur API REST (Fastify)
-- **Port** : 8080
-- **Logging** : Intégré Fastify
-- **Middleware** : Authentication guard
-- **Format** : JSON requests/responses
+Les composants utilitaires incluent un HashMapIterator implémentant le pattern Iterator pour le parcours optimisé de la structure, des fonctions utilitaires centralisées notamment pour la génération JWT, et des définitions TypeScript centralisées garantissant la cohérence des types à travers l'application.
 
-#### 2. Module de Stockage en Mémoire
-- **HashMap** : Structure principale de données
-- **BucketManager** : Gestion des collisions (chaînage)
-- **ResizeManager** : Redimensionnement automatique
-- **Hasher** : Fonction de hachage personnalisée
-- **IndexCalculator** : Calcul d'index avec modulo
+## Structure de Données HashMap
 
-#### 3. Système d'Authentification
-- **JWT Tokens** : Authentification stateless
-- **Auth Guard** : Middleware de protection des endpoints
-- **Expire Time** : Gestion de l'expiration des tokens
+Le choix de la HashMap comme structure principale se justifie par sa complexité temporelle O(1) en moyenne, nettement supérieure aux alternatives comme les arrays triés O(log n) ou les arrays simples O(n). Cette performance s'avère cruciale pour un système de cache haute performance où chaque milliseconde compte.
 
-#### 4. Composants Utilitaires
-- **HashMapIterator** : Pattern Iterator pour parcours
-- **Utils** : Fonctions utilitaires (génération JWT)
-- **Types** : Définitions TypeScript centralisées
+L'implémentation utilise une fonction de hachage personnalisée basée sur les codes ASCII avec un algorithme polynomial modulo un nombre premier large pour garantir une distribution uniforme. Chaque caractère de la clé contribue au calcul par multiplication par 31 et addition du code ASCII, le résultat étant normalisé par modulo 1000000007 pour éviter les débordements.
 
-## 3. Structure de Données : HashMap
+La gestion des collisions s'effectue par chaînage avec des arrays imbriqués, où chaque bucket contient un array d'objets représentant les paires clé/valeur. Cette approche privilégie la simplicité d'implémentation tout en maintenant des performances acceptables même en cas de collisions multiples. La recherche dans un bucket s'effectue par parcours linéaire, acceptable given la distribution uniforme attendue.
 
-### Justification du Choix
-
-#### HashMap vs Autres Structures
-| Structure | Complexité | Avantages | Inconvénients |
-|-----------|------------|-----------|---------------|
-| **HashMap** | O(1) avg | Très rapide, flexible | Collision handling |
-| Array trié | O(log n) | Ordonné, prévisible | Plus lent pour CRUD |
-| Array simple | O(n) | Simple à implémenter | Très lent à l'échelle |
-
-#### Implémentation Détaillée
-
-**Fonction de Hachage** :
-```typescript
-// Algorithme personnalisé basé sur les codes ASCII
-hash(key: string): number {
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) {
-    hash = (hash * 31 + key.charCodeAt(i)) % 1000000007;
-  }
-  return Math.abs(hash);
-}
-```
-
-**Gestion des Collisions** :
-- **Méthode** : Chaînage (Array de Arrays)
-- **Structure** : `buckets[index] = [{key: value}, {key2: value2}, ...]`
-- **Recherche** : Parcours linéaire dans le bucket
-
-**Redimensionnement Automatique** :
-- **Load Factor** : 0.75 (seuil de redimensionnement)
-- **Stratégie** : Doublement de la taille (10 → 20 → 40...)
-- **Re-hashing** : Recalcul de tous les index lors du resize
+Le redimensionnement automatique maintient un load factor optimal de 0.75, déclenchant un doublement de la taille des buckets et un re-hashing complet de toutes les entrées existantes. Cette stratégie préserve les performances en évitant la dégradation due à des buckets surchargés, au prix d'une opération ponctuelle plus coûteuse mais transparente pour l'utilisateur.
 
 ## 4. Endpoints API Détaillés
 
